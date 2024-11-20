@@ -7,37 +7,27 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-
-
-const customers =[
-  {
-    id:1,
-    image:'https://picsum.photos/64',
-    name:"고길동",
-    birthday:"2000.01.01",
-    gender:"남자",
-    job:"둘리보호자"
-  },
-  {
-    id:2,
-    image:'https://picsum.photos/64',
-    name:"둘리",
-    birthday:"2000.01.01",
-    gender:"남자",
-    job:"호이호이"
-  },
-  {
-    id:3,
-    image:'https://picsum.photos/64',
-    name:"또치",
-    birthday:"2000.01.01",
-    gender:"남자",
-    job:"또치또치또또치"
-  }
-]
+import { useEffect, useState, useCallback } from 'react';
 
 
 function App() {
+  const [customers, setCustomers] = useState([]); 
+
+  const getCustomerList = useCallback(async () => {
+    try {
+      const res = await fetch('/api/customers'); // 상대 경로 사용
+      const data = await res.json();
+      console.log('응답 데이터 확인',data); // 응답 데이터 확인
+      setCustomers(data); // 상태 업데이트
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+    }
+  },[])
+
+  useEffect(()=>{
+    getCustomerList()
+  },[getCustomerList])
+
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
@@ -67,9 +57,7 @@ function App() {
         })}
         </TableBody>
       </Table>
-    </TableContainer>
-
-    
+    </TableContainer>    
   );
 }
 
