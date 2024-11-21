@@ -7,18 +7,19 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useEffect, useState, useCallback } from 'react';
 
 
 function App() {
   const [customers, setCustomers] = useState([]); 
+  const [completed, setCompleted] = useState(0)
 
   const getCustomerList = useCallback(async () => {
     try {
-      const res = await fetch('/api/customers'); // 상대 경로 사용
+      const res = await fetch('/api/customers'); 
       const data = await res.json();
-      console.log('응답 데이터 확인',data); // 응답 데이터 확인
-      setCustomers(data); // 상태 업데이트
+      setCustomers(data); 
     } catch (error) {
       console.error("Error fetching customers:", error);
     }
@@ -27,6 +28,16 @@ function App() {
   useEffect(()=>{
     getCustomerList()
   },[getCustomerList])
+
+  const progress = () => {
+    setCompleted((prev)=>(prev >=100 ? 0 : prev +1))
+    return completed
+  }
+
+  useEffect(()=>{
+    const timer = setInterval(progress, 100); //100ms마다 업데이트
+    return ()=>clearInterval(timer); //컴포넌트 언마운트시 함수지움
+  },[])
 
   return (
     <TableContainer component={Paper}>
@@ -42,8 +53,8 @@ function App() {
         </TableHead>
         <TableBody>
          
-        {customers.map((v)=>{
-          return(
+        {customers.length > 0 ? (
+          customers.map((v) => (
             <Customer
               key={v.id}
               id={v.id}
@@ -53,8 +64,15 @@ function App() {
               gender={v.gender}
               job={v.job}
             />
-          )
-        })}
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={6} align="center">
+              {/* <CircularProgress variant="determinate" value={completed} /> */}
+              <CircularProgress/>
+            </TableCell>
+          </TableRow>
+        )}
         </TableBody>
       </Table>
     </TableContainer>    
